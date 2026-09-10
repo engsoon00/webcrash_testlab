@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <title>WebView Error &amp; Crash Test Lab</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ============================ HEADER ============================ -->
+  <header class="site-header">
+    <div class="wrap">
+      <h1>WebView Error &amp; Crash Test Lab</h1>
+      <p class="subtitle">Trigger controlled browser/WebView failures for Flutter logging tests</p>
+      <p class="env-tag">WebView Error &amp; Crash Test Lab — Development Only</p>
+      <div class="banner banner-warn" role="alert">
+        ⚠️ <strong>Development testing only.</strong> Some tests may freeze or crash the WebView.
+        Every test is manual — nothing runs automatically.
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap" id="app">
+
+    <!-- ============================ CONFIG ============================ -->
+    <section class="card" id="config-card">
+      <h2 class="card-title">Configuration</h2>
+      <p class="card-note">
+        Network tests (HTTP 404 / 500 / timeout) use a configurable base endpoint.
+        The default is a public status-code echo service. Change it to your own backend
+        if you want to test against it.
+      </p>
+      <div class="config-row">
+        <label for="apiBase">API base endpoint</label>
+        <input type="text" id="apiBase" value="https://httpstat.us"
+               spellcheck="false" autocapitalize="off" autocomplete="off" />
+        <button class="btn btn-ghost" data-action="applyApiBase">Apply</button>
+      </div>
+      <p class="card-note tiny">
+        Expected paths: <code>/404</code> → HTTP 404, <code>/500</code> → HTTP 500,
+        <code>/200?sleep=30000</code> → slow response (for timeout). Default <code>httpstat.us</code>
+        sends permissive CORS headers.
+      </p>
+    </section>
+
+    <!-- ===================== CATEGORY 1 — JS ERRORS ===================== -->
+    <section class="card">
+      <h2 class="card-title">1 · JavaScript Errors</h2>
+      <div class="grid">
+
+        <div class="test" data-test-id="JS-001">
+          <div class="test-head"><span class="tid">JS-001</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testUncaughtException">Trigger JS Exception</button>
+          <p class="desc">Throws an uncaught <code>Error</code> (no try/catch). Fires the global <code>error</code> handler.</p>
+        </div>
+
+        <div class="test" data-test-id="JS-002">
+          <div class="test-head"><span class="tid">JS-002</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testTypeError">Trigger TypeError</button>
+          <p class="desc">Calls a method on <code>null</code> — throws an uncaught <code>TypeError</code>.</p>
+        </div>
+
+        <div class="test" data-test-id="JS-003">
+          <div class="test-head"><span class="tid">JS-003</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testReferenceError">Trigger ReferenceError</button>
+          <p class="desc">References an undeclared variable — throws an uncaught <code>ReferenceError</code>.</p>
+        </div>
+
+        <div class="test" data-test-id="JS-004">
+          <div class="test-head"><span class="tid">JS-004</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testSyntaxError">Trigger Syntax Error</button>
+          <p class="desc"><code>eval()</code> of invalid source — throws an uncaught <code>SyntaxError</code>.</p>
+        </div>
+
+        <div class="test" data-test-id="JS-005">
+          <div class="test-head"><span class="tid">JS-005</span><span class="status" data-status>idle</span></div>
+          <button class="btn btn-risk" data-action="testStackOverflow">Trigger Stack Overflow</button>
+          <p class="desc">Unbounded recursion — throws <code>RangeError</code>. <strong>May freeze/crash the renderer.</strong></p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================== CATEGORY 2 — CONSOLE ===================== -->
+    <section class="card">
+      <h2 class="card-title">2 · Console Logging</h2>
+      <div class="grid">
+
+        <div class="test" data-test-id="CONSOLE-001">
+          <div class="test-head"><span class="tid">CONSOLE-001</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testConsoleError">Console Error</button>
+          <p class="desc">Emits a single <code>console.error</code>.</p>
+        </div>
+
+        <div class="test" data-test-id="CONSOLE-002">
+          <div class="test-head"><span class="tid">CONSOLE-002</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testConsoleWarn">Console Warning</button>
+          <p class="desc">Emits a single <code>console.warn</code>.</p>
+        </div>
+
+        <div class="test" data-test-id="CONSOLE-003">
+          <div class="test-head"><span class="tid">CONSOLE-003</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testConsoleInfo">Console Info</button>
+          <p class="desc">Emits a single <code>console.info</code>.</p>
+        </div>
+
+        <div class="test" data-test-id="CONSOLE-004">
+          <div class="test-head"><span class="tid">CONSOLE-004</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testConsoleDebug">Console Debug</button>
+          <p class="desc">Emits a single <code>console.debug</code>.</p>
+        </div>
+
+        <div class="test" data-test-id="CONSOLE-005">
+          <div class="test-head"><span class="tid">CONSOLE-005</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testMultipleConsoleErrors">Multiple Console Errors (100)</button>
+          <p class="desc">Emits ~100 <code>console.error</code> calls quickly to stress <code>onConsoleMessage</code>.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================== CATEGORY 3 — PROMISE / ASYNC ===================== -->
+    <section class="card">
+      <h2 class="card-title">3 · Promise / Async Errors</h2>
+      <div class="grid">
+
+        <div class="test" data-test-id="PROMISE-001">
+          <div class="test-head"><span class="tid">PROMISE-001</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testPromiseRejection">Trigger Unhandled Promise Rejection</button>
+          <p class="desc"><code>Promise.reject()</code> with no <code>.catch()</code> — fires <code>unhandledrejection</code>.</p>
+        </div>
+
+        <div class="test" data-test-id="PROMISE-002">
+          <div class="test-head"><span class="tid">PROMISE-002</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testAsyncException">Trigger Async Exception</button>
+          <p class="desc">An <code>async</code> function throws; the returned promise rejects unhandled.</p>
+        </div>
+
+        <div class="test" data-test-id="PROMISE-003">
+          <div class="test-head"><span class="tid">PROMISE-003</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testRepeatedAsyncErrors">Repeated Async Errors (20)</button>
+          <p class="desc">Produces 20 unhandled rejected promises in a burst.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================== CATEGORY 4 — MEMORY ===================== -->
+    <section class="card">
+      <h2 class="card-title">4 · Memory Stress Tests</h2>
+      <p class="card-note">Allocations start small. Pick an explicit size — nothing allocates automatically. References are kept alive so GC cannot reclaim them until you press <em>Free Allocations</em>.</p>
+      <div class="grid">
+
+        <div class="test wide" data-test-id="MEM-001">
+          <div class="test-head"><span class="tid">MEM-001</span><span class="status" data-status>idle</span></div>
+          <p class="desc">Allocate a large buffer and fill it to commit real memory.</p>
+          <div class="btn-row">
+            <button class="btn" data-action="testMemoryAllocation" data-arg="100">Allocate 100 MB</button>
+            <button class="btn" data-action="testMemoryAllocation" data-arg="250">Allocate 250 MB</button>
+            <button class="btn btn-risk" data-action="testMemoryAllocation" data-arg="500">Allocate 500 MB</button>
+            <button class="btn btn-risk" data-action="testMemoryAllocation" data-arg="1024">Allocate 1 GB</button>
+            <button class="btn btn-ghost" data-action="freeAllocations">Free Allocations</button>
+          </div>
+        </div>
+
+        <div class="test wide" data-test-id="MEM-002">
+          <div class="test-head"><span class="tid">MEM-002</span><span class="status" data-status>idle</span></div>
+          <p class="desc">Memory leak simulation — appends ~8 MB to a global array every 500 ms.</p>
+          <div class="btn-row">
+            <button class="btn btn-risk" data-action="startMemoryLeak">Start Memory Leak</button>
+            <button class="btn btn-ghost" data-action="stopMemoryLeak">Stop Memory Leak</button>
+            <button class="btn btn-ghost" data-action="clearMemory">Clear Memory</button>
+          </div>
+        </div>
+
+        <div class="test" data-test-id="MEM-003">
+          <div class="test-head"><span class="tid">MEM-003</span><span class="status" data-status>idle</span></div>
+          <button class="btn btn-risk" data-action="testLargeDOM">Create Huge DOM (100k nodes)</button>
+          <p class="desc">Inserts 100,000 DOM nodes to create memory/layout pressure.</p>
+        </div>
+
+        <div class="test wide" data-test-id="MEM-004">
+          <div class="test-head"><span class="tid">MEM-004</span><span class="status" data-status>idle</span></div>
+          <p class="desc">Create large canvases (backing store = W × H × 4 bytes) and keep them alive.</p>
+          <div class="btn-row">
+            <button class="btn" data-action="testLargeCanvas" data-arg="4000">Canvas 4000²</button>
+            <button class="btn btn-risk" data-action="testLargeCanvas" data-arg="6000">Canvas 6000²</button>
+            <button class="btn btn-risk" data-action="testLargeCanvas" data-arg="8000">Canvas 8000²</button>
+            <button class="btn btn-ghost" data-action="freeAllocations">Free Allocations</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================== CATEGORY 5 — CPU / RENDERER (HIGH RISK) ===================== -->
+    <section class="card card-danger">
+      <h2 class="card-title">5 · CPU / Renderer Stress &nbsp;<span class="pill pill-danger">⚠️ HIGH RISK TESTS</span></h2>
+      <div class="grid">
+
+        <div class="test" data-test-id="CPU-001">
+          <div class="test-head"><span class="tid">CPU-001</span><span class="status" data-status>idle</span></div>
+          <button class="btn btn-risk" data-action="testInfiniteLoop">CPU Stress — Infinite Loop</button>
+          <p class="desc"><strong>Makes the WebView permanently unresponsive.</strong> The only recovery is reloading/closing the WebView.</p>
+        </div>
+
+        <div class="test" data-test-id="CPU-002">
+          <div class="test-head"><span class="tid">CPU-002</span><span class="status" data-status>idle</span></div>
+          <button class="btn btn-risk" data-action="testCPUStress">CPU Stress — 10 Seconds</button>
+          <p class="desc">Blocks the main thread with heavy math for ~10 s, then recovers.</p>
+        </div>
+
+        <div class="test wide" data-test-id="CPU-003">
+          <div class="test-head"><span class="tid">CPU-003</span><span class="status" data-status>idle</span></div>
+          <p class="desc">Animation stress — thousands of continuously animated DOM elements.</p>
+          <div class="btn-row">
+            <button class="btn btn-risk" data-action="startAnimationStress">Start Animation Stress</button>
+            <button class="btn btn-ghost" data-action="stopAnimationStress">Stop Animation Stress</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================== CATEGORY 6 — NETWORK ===================== -->
+    <section class="card">
+      <h2 class="card-title">6 · Network Errors</h2>
+      <div class="grid">
+
+        <div class="test" data-test-id="NETWORK-001">
+          <div class="test-head"><span class="tid">NETWORK-001</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testInvalidDomain">Invalid Domain</button>
+          <p class="desc"><code>fetch()</code> to a non-resolving host — rejection is <strong>not</strong> caught.</p>
+        </div>
+
+        <div class="test" data-test-id="NETWORK-002">
+          <div class="test-head"><span class="tid">NETWORK-002</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testHttp404">HTTP 404 Test</button>
+          <p class="desc">Requests <code>{API_BASE}/404</code> and logs the response status.</p>
+        </div>
+
+        <div class="test" data-test-id="NETWORK-003">
+          <div class="test-head"><span class="tid">NETWORK-003</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testHttp500">HTTP 500 Test</button>
+          <p class="desc">Requests <code>{API_BASE}/500</code> and logs the response status.</p>
+        </div>
+
+        <div class="test" data-test-id="NETWORK-004">
+          <div class="test-head"><span class="tid">NETWORK-004</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testNetworkTimeout">Network Timeout</button>
+          <p class="desc">Requests a slow endpoint and aborts after 10 s, logging the timeout.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================== CATEGORY 7 — SECURITY ===================== -->
+    <section class="card">
+      <h2 class="card-title">7 · Security / Browser Restrictions</h2>
+      <div class="grid">
+
+        <div class="test" data-test-id="SEC-001">
+          <div class="test-head"><span class="tid">SEC-001</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testMixedContent">Mixed Content</button>
+          <p class="desc">From HTTPS, fetches an <code>http://</code> resource. Tests Android WebView mixed-content policy.</p>
+        </div>
+
+        <div class="test" data-test-id="SEC-002">
+          <div class="test-head"><span class="tid">SEC-002</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testCorsError">Trigger CORS Error</button>
+          <p class="desc">Fetches a cross-origin resource that does not allow this origin.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================== CATEGORY 8 — WEB API / PERMISSIONS ===================== -->
+    <section class="card">
+      <h2 class="card-title">8 · Web API / Permission Errors</h2>
+      <div class="grid">
+
+        <div class="test" data-test-id="PERMISSION-001">
+          <div class="test-head"><span class="tid">PERMISSION-001</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testGeolocation">Request Geolocation</button>
+          <p class="desc"><code>getCurrentPosition()</code> — logs grant/deny/unsupported.</p>
+        </div>
+
+        <div class="test" data-test-id="PERMISSION-002">
+          <div class="test-head"><span class="tid">PERMISSION-002</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testNotification">Request Notification Permission</button>
+          <p class="desc"><code>Notification.requestPermission()</code> — handles unsupported gracefully.</p>
+        </div>
+
+        <div class="test" data-test-id="PERMISSION-003">
+          <div class="test-head"><span class="tid">PERMISSION-003</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testCamera">Request Camera</button>
+          <p class="desc"><code>getUserMedia({ video:true })</code> — only on press.</p>
+        </div>
+
+        <div class="test" data-test-id="PERMISSION-004">
+          <div class="test-head"><span class="tid">PERMISSION-004</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testMicrophone">Request Microphone</button>
+          <p class="desc"><code>getUserMedia({ audio:true })</code> — only on press.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================== CATEGORY 9 — STORAGE ===================== -->
+    <section class="card">
+      <h2 class="card-title">9 · Storage Errors</h2>
+      <div class="grid">
+
+        <div class="test" data-test-id="STORAGE-001">
+          <div class="test-head"><span class="tid">STORAGE-001</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testStorageQuota">Storage Stress (localStorage)</button>
+          <p class="desc">Writes large strings until quota is exceeded, then logs and clears test keys.</p>
+        </div>
+
+        <div class="test" data-test-id="STORAGE-002">
+          <div class="test-head"><span class="tid">STORAGE-002</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testIndexedDB">IndexedDB Test</button>
+          <p class="desc">Creates a DB and writes progressively larger blobs, logging each step.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================== CATEGORY 10 — WEBGL ===================== -->
+    <section class="card">
+      <h2 class="card-title">10 · WebGL Errors</h2>
+      <div class="grid">
+
+        <div class="test" data-test-id="WEBGL-001">
+          <div class="test-head"><span class="tid">WEBGL-001</span><span class="status" data-status>idle</span></div>
+          <button class="btn btn-risk" data-action="testWebGL">WebGL Test</button>
+          <p class="desc">Creates a WebGL context; if available, allocates many textures/buffers to stress the GPU layer and listens for context loss.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================== CATEGORY 11 — LIFECYCLE ===================== -->
+    <section class="card">
+      <h2 class="card-title">11 · Page Lifecycle Tests</h2>
+      <div class="grid">
+
+        <div class="test" data-test-id="LIFECYCLE-001">
+          <div class="test-head"><span class="tid">LIFECYCLE-001</span><span class="status" data-status>idle</span></div>
+          <button class="btn" data-action="testReload">Reload WebView</button>
+          <p class="desc"><code>location.reload()</code>. Fires <code>onLoadStart</code>/<code>onLoadStop</code> in Flutter.</p>
+        </div>
+
+        <div class="test" data-test-id="LIFECYCLE-002">
+          <div class="test-head"><span class="tid">LIFECYCLE-002</span><span class="status" data-status>idle</span></div>
+          <button class="btn btn-risk" data-action="testNavigateInvalid">Navigate To Invalid Page</button>
+          <p class="desc">Navigates to a non-resolving URL (main-frame load error). <strong>Leaves this page.</strong></p>
+        </div>
+
+        <div class="test" data-test-id="LIFECYCLE-003">
+          <div class="test-head"><span class="tid">LIFECYCLE-003</span><span class="status" data-status>idle</span></div>
+          <button class="btn btn-risk" data-action="testDestroyDOM">Destroy DOM</button>
+          <p class="desc">Removes most page elements (keeps header + event log so you can read results).</p>
+        </div>
+
+        <div class="test" data-test-id="LIFECYCLE-004">
+          <div class="test-head"><span class="tid">LIFECYCLE-004</span><span class="status" data-status>idle</span></div>
+          <button class="btn btn-risk" data-action="testFreezeUI">Freeze UI — 5 Seconds</button>
+          <p class="desc">Blocks the main thread for ~5 s, then recovers. Tests responsiveness handling.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================== CATEGORY 12 — RENDERER CRASH ===================== -->
+    <section class="card card-danger">
+      <h2 class="card-title">12 · Renderer Crash / Process Gone &nbsp;<span class="pill pill-danger">⚠️ Renderer Crash Tests</span></h2>
+      <div class="banner banner-info">
+        A normal web page cannot reliably force an Android/iOS WebView renderer process to crash in a
+        portable, safe way. This test does <strong>not</strong> guarantee a crash — it creates realistic
+        renderer pressure by combining memory, DOM, canvas, WebGL and CPU load.
+        Flutter's <code>onRenderProcessGone</code> only fires if the underlying renderer process actually terminates,
+        which is platform- and device-dependent.
+      </div>
+      <div class="grid">
+        <div class="test wide" data-test-id="RENDERER-001">
+          <div class="test-head"><span class="tid">RENDERER-001</span><span class="status" data-status>idle</span></div>
+          <button class="btn btn-risk" data-action="testRendererStress">Renderer Stress Test</button>
+          <p class="desc">Sequentially: allocate memory → build large DOM → create big canvases → stress WebGL → CPU burst. Keeps references alive.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== EVENT LOG ===================== -->
+    <section class="card" id="log-card">
+      <div class="log-head">
+        <h2 class="card-title">Test Event Log</h2>
+        <div class="btn-row">
+          <label class="chk"><input type="checkbox" id="autoscroll" checked /> Auto-scroll</label>
+          <span class="count"><span id="logCount">0</span> entries</span>
+          <button class="btn btn-ghost" data-action="copyLogs">Copy Logs</button>
+          <button class="btn btn-ghost" data-action="clearLogs">Clear Logs</button>
+        </div>
+      </div>
+      <div id="log" class="log" aria-live="polite"></div>
+    </section>
+
+    <!-- ===================== FLUTTER DOCS ===================== -->
+    <section class="card" id="flutter-card">
+      <h2 class="card-title">Flutter InAppWebView Events To Monitor</h2>
+      <ul class="event-list">
+        <li><code>onConsoleMessage</code></li>
+        <li><code>onLoadError</code></li>
+        <li><code>onLoadHttpError</code></li>
+        <li><code>onReceivedError</code></li>
+        <li><code>onReceivedHttpError</code></li>
+        <li><code>onRenderProcessGone</code></li>
+        <li><code>onWebViewCreated</code></li>
+        <li><code>onLoadStart</code></li>
+        <li><code>onLoadStop</code></li>
+      </ul>
+      <div class="banner banner-info">
+        JavaScript errors and <code>console.error</code> messages do <strong>not</strong> necessarily trigger
+        Flutter WebView <em>load-error</em> callbacks. They surface through <code>onConsoleMessage</code>.
+        Renderer crashes / process termination are a different class of event (<code>onRenderProcessGone</code>).
+      </div>
+      <p class="card-note">
+        Expected pipeline: <br />
+        <code>Web Test → JS error / console.error / WebView failure → Flutter InAppWebView →
+        onConsoleMessage / onRenderProcessGone / error callbacks → Flutter logging → Firebase Crashlytics</code>
+      </p>
+      <p class="card-note tiny">
+        Firebase is intentionally <strong>not</strong> included here — the Flutter app owns Crashlytics.
+        This page only generates browser/WebView errors. Correlate using the <code>[TEST: ID]</code> markers in each log line.
+      </p>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">WebView Error &amp; Crash Test Lab · Development only · No analytics · No external JS dependencies</div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
